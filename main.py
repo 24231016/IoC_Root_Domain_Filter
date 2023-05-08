@@ -1,4 +1,7 @@
 import urllib.request
+import time
+
+start=time.time()
 response = urllib.request.urlopen('https://data.iana.org/TLD/tlds-alpha-by-domain.txt')
 tld_data = response.read().decode('utf-8')
 
@@ -29,17 +32,19 @@ def cp_s(seq):
     else:
         seq = ".".join(seq)
     return seq
-with open('output_filter.csv', 'w', encoding='utf-8-sig') as f:
+
+with open('output/result_%s.csv'%(time.strftime("%m%d_%H%M", time.localtime())), 'w', encoding='utf-8-sig') as f:
     f.write("source_url, output_url\n")
+
     for url in urls:
-        filter_url = url.replace('https://','').replace('http://','')
-        filter_url = filter_url.split("/")
-        if len(filter_url)>1:
-            filter_url = cp_s(filter_url[0])
-            # filter_url = "/".join(filter_url)
+        if 'http' in url:
+            filter_url = url.replace('https://','').replace('http://','')
         else:
-            filter_url = cp_s(filter_url[0])
-        f.write(f"{url}, {filter_url}\n")
+            filter_url = url
+        filter_url = filter_url.split("/")
+        filter_url = cp_s(filter_url[0])
+        filter_url = filter_url.split(":")
+        filter_url = cp_s(filter_url[0])
+        filter_url = filter_url.split("?")
 
-
-
+        f.write(f"{url},{filter_url[0]}\n")
